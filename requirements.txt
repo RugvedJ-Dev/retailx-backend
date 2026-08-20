@@ -1,8 +1,0 @@
-langgraph
-langchain
-langchain-groq
-fastapi
-uvicorn
-dotenv
-asyncpg
-langchain-google-genai
