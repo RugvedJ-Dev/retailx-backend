@@ -5,3 +5,4 @@ uvicorn
 langchain-groq
 langchain-google-genai
 dotenv
+langchain_mcp_adapters

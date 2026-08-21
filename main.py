@@ -5,17 +5,31 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from langgraph.checkpoint.memory import InMemorySaver
 from classes.classes import UserMessages,AgentRequest
+from langgraph.prebuilt import ToolNode, tools_condition
 from nodes.nodes import chat_node
+from config.mcp import load_mcp_tools
 
 app = FastAPI()
+
+mcp_tools = load_mcp_tools()
+
+tool_node = ToolNode(mcp_tools) if mcp_tools else None
+
+memory = InMemorySaver()
 
 builder = StateGraph(UserMessages)
 builder.add_node("chatNode",chat_node)
 builder.add_edge(START,"chatNode")
 builder.add_edge("chatNode",END)
+if tool_node:
+    builder.add_node("tools", tool_node)
+    builder.add_conditional_edges("chatNode", tools_condition)
+    builder.add_edge("tools", "chatNode")
+else:
+    builder.add_edge("chatNode", END)
 
-memory = InMemorySaver()
 graph = builder.compile(checkpointer=memory)
+
 
 async def event_generator(inputs, config):
     # Track if an interrupt paused the graph
@@ -67,5 +81,11 @@ async def event_generator(inputs, config):
 async def stream_agent(request: AgentRequest):
     return StreamingResponse(
         event_generator(request.inputs, request.config), 
-        media_type="text/event-stream"
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disables proxy buffering (Nginx/Vercel)
+            "Content-Type": "text/event-stream",
+        }
     )
