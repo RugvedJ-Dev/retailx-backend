@@ -1,0 +1,7 @@
+langchain
+langgraph
+fastapi
+uvicorn
+langchain-groq
+langchain-google-genai
+dotenv
