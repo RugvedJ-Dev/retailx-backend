@@ -1,1 +1,92 @@
+# ==============================================================================
+# uv & Virtual Environments
+# ==============================================================================
+# uv automatically adds an internal .gitignore inside .venv, but explicitly
+# ignoring it ensures it stays out of your version control regardless.
+.venv/
+
+# NOTE: DO NOT gitignore 'uv.lock'.
+# Just like poetry.lock or package-lock.json, uv.lock must be committed to
+# source control to ensure consistent and reproducible builds.
+# !uv.lock
+
+# DO NOT gitignore '.python-version'.
+# This file tracks the pinned Python version for uv and should be shared.
+# !.python-version
+
+# ==============================================================================
+# Python Bytecode and Cache
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# ==============================================================================
+# Packaging, Distribution, and Builds
+# ==============================================================================
+# Generated when building packages (e.g., uv build)
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==============================================================================
+# Testing, Coverage, and Linting
+# ==============================================================================
+# Inline tools often configured in your pyproject.toml (e.g., pytest, Ruff)
+.cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pytype_cache/
+.coverage
+.coverage.*
+.htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.xml-data/
+
+# ==============================================================================
+# Environment Variables & Secrets
+# ==============================================================================
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ==============================================================================
+# IDEs and System Files
+# ==============================================================================
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm / IntelliJ
+.idea/

@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from retailx-backend!")
+print("Hi world")
