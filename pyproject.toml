@@ -7,7 +7,13 @@ authors = [
     { name = "Rugved", email = "rugvedjadhao122004.dev@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.142.1",
+    "langchain>=1.4.3",
+    "langchain-groq>=1.1.3",
+    "langgraph>=1.2.12",
+]
 
 [project.scripts]
 retailx-backend = "retailx_backend:main"
