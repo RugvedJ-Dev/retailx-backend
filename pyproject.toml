@@ -1,17 +1,41 @@
 [project]
 name = "retailx-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "RetailX AI backend: FastAPI gateway, LangGraph planner/worker agent, FastMCP sales tools"
 readme = "README.md"
-authors = [
-    { name = "Rugved", email = "rugvedjadhao122004.dev@gmail.com" }
-]
+authors = [{ name = "Rugved", email = "rugvedjadhao122004.dev@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "email-validator>=2.2",
+    "pymongo>=4.13",
+    "argon2-cffi>=23.1",
+    "pyjwt>=2.9",
+    "httpx>=0.27",
+    "langgraph>=1.0",
+    "langgraph-checkpoint-mongodb>=0.2",
+    "langchain>=1.0",
+    "langchain-groq>=1.0",
+    "fastmcp>=3.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "mongomock>=4.2", "ruff>=0.6"]
 
 [project.scripts]
 retailx-backend = "retailx_backend:main"
+retailx-mcp = "retailx_backend.mcp_server.server:main"
 
 [build-system]
-requires = ["uv_build>=0.12.10,<0.13.0"]
+requires = ["uv_build>=0.8,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100

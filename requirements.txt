@@ -1,5 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+email-validator
+pymongo
+argon2-cffi
+pyjwt
+httpx
 langgraph
+langgraph-checkpoint-mongodb
 langchain
 langchain-groq
-fastapi
-dotenv
+fastmcp
