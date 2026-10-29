@@ -9,6 +9,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.runnables import RunnableConfig
 from langgraph.config import get_stream_writer
 from langgraph.types import interrupt
 
@@ -36,7 +37,7 @@ def _text(message: BaseMessage) -> str:
 
 
 # ------------------------------------------------------------------------------ planner
-async def planner_node(state: AgentState, config: dict) -> dict[str, Any]:
+async def planner_node(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     deps, write = get_deps(config), get_stream_writer()
     messages = state["messages"]
     request = _text(messages[-1])
@@ -71,7 +72,7 @@ async def planner_node(state: AgentState, config: dict) -> dict[str, Any]:
     return {"plan": steps, "direct_reply": None}
 
 
-def route(state: AgentState, config: dict) -> str:
+def route(state: AgentState, config: RunnableConfig) -> str:
     """Explicit, bounded state transitions after the planner, gate and worker nodes."""
     if state.get("aborted"):
         return "synthesize"
@@ -86,7 +87,7 @@ def route(state: AgentState, config: dict) -> str:
 
 
 # ------------------------------------------------------------------------- approval gate
-async def approval_gate_node(state: AgentState, config: dict) -> dict[str, Any]:
+async def approval_gate_node(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     """Pause for human approval.
 
     LangGraph re-executes this node from the top on resume, so everything before ``interrupt``
@@ -124,7 +125,7 @@ async def approval_gate_node(state: AgentState, config: dict) -> dict[str, Any]:
 
 
 # ----------------------------------------------------------------------------- worker
-async def worker_node(state: AgentState, config: dict) -> dict[str, Any]:
+async def worker_node(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     deps, write = get_deps(config), get_stream_writer()
     cursor = state["cursor"]
     step = state["plan"][cursor]
@@ -133,7 +134,9 @@ async def worker_node(state: AgentState, config: dict) -> dict[str, Any]:
     write({"type": "step_started", "id": sid, "title": step["title"], "action": action})
     started = time.perf_counter()
     try:
-        if action in WRITE_ACTIONS and (state.get("approvals") or {}).get(sid) != "approved":
+        needs_ok = requires_approval(step, deps.settings.approval_policy)
+        if needs_ok and (state.get("approvals") or {}).get(sid) != "approved":
+            # Fail closed: a write the policy gates never runs without a recorded approval.
             raise StepError("That change was not approved, so it was not applied.")
         op_key = f"{deps.thread_id}:{state['run_id']}:{sid}"
         data = await execute_step(step, results, deps, op_key)
@@ -197,7 +200,7 @@ def build_facts(state: AgentState) -> dict[str, Any]:
     ], "charts_built": [c["title"] for c in state.get("charts") or []]}
 
 
-async def synthesize_node(state: AgentState, config: dict) -> dict[str, Any]:
+async def synthesize_node(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     deps, write = get_deps(config), get_stream_writer()
     text = state.get("direct_reply") or template_reply(state)
     if text is None:

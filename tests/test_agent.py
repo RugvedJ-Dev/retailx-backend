@@ -72,7 +72,7 @@ class Env:
         return await collect(runner.run_resume(self.uid, self.tid, approval_id, decision))
 
     async def sales(self, day="2026-10-29", user=None):
-        return await self.store.sales_for_date(user or self.user, day)
+        return (await self.store.sales_for_date(user or self.user, day)).model_dump()
 
 
 @pytest.fixture

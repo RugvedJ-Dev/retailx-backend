@@ -6,6 +6,7 @@ forwarded.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from collections.abc import AsyncIterator
@@ -54,6 +55,13 @@ class AgentRunner:
         """The approval payload the graph is currently paused on, if any (source of truth)."""
         snapshot = await self.graph.aget_state(self._config(user_id, thread_oid))
         return snapshot.interrupts[0].value if snapshot.interrupts else None
+
+    async def delete_state(self, thread_id: str) -> None:
+        """Remove a thread's LangGraph checkpoints."""
+        try:
+            await asyncio.to_thread(self.graph.checkpointer.delete_thread, thread_id)
+        except Exception:
+            log.exception("failed to delete checkpoints thread=%s", thread_id)
 
     async def run_chat(self, user_id: ObjectId, thread_oid: ObjectId, message: str) -> AsyncIterator[dict]:
         run_id = uuid.uuid4().hex
